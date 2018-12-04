@@ -1,6 +1,7 @@
 
 
-# [POST] /submit
+# 提交用户论文和专利
+[POST] /submit
 ## request: application/json
 字段名称 | 数据类型 | 是否必须 | 字段说明
 | -- |:--:|:--:| -- |
@@ -38,7 +39,8 @@ message | string | 成功或错误信息
 }
 ```
 
-# [GET] /status/{`userId`}
+# 查询用户论文和专利
+[GET] /status/{`userId`}
 ## request:
 字段名称 | 数据类型 | 是否必须 | 字段说明
 | -- |:--:|:--:| -- |

@@ -1,0 +1,15 @@
+{
+  "apps": [{
+    "name": "crawl",
+    "script": "production.js",
+    "cwd": "/Users/zhen/myProjects/crawl",
+    "exec_mode": "fork",
+    "max_memory_restart": "1G",
+    "autorestart": true,
+    "node_args": [],
+    "args": [],
+    "env": {
+      
+    }
+  }]
+}

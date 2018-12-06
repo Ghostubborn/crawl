@@ -1,4 +1,4 @@
 module.exports = [
-  ['/submit', '/crawler/submit', 'get'],
+  ['/submit', '/crawler/submit', 'post'],
   ['/status/:userId', '/crawler/status', 'get'],
 ];

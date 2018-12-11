@@ -28,7 +28,6 @@ module.exports = class extends think.Logic {
   }
   statusAction() {
     if (!/^\d+$/.test(this.get('userId'))) {
-      console.log('--------');
       this.ctx.json({
         code: 400,
         message: '参数错误'

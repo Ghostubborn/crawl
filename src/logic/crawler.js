@@ -4,10 +4,10 @@ module.exports = class extends think.Logic {
   }
   submitAction() {
     const data = this.ctx.request.body.post;
-    if (typeof data.userId !== 'number' || !think.isInt(data.userId) || data.userId < 0 ) {
+    if (typeof data.userId !== 'string' || !data.userId ) {
       this.ctx.json({
         code: 400,
-        message: 'userId 必须为正整数。'
+        message: 'userId 必须为非空字符串。'
       });
       return false;
     }
@@ -27,7 +27,7 @@ module.exports = class extends think.Logic {
     }
   }
   statusAction() {
-    if (!/^\d+$/.test(this.get('userId'))) {
+    if (!/^[0-9a-zA-Z\-]+$/.test(this.get('userId'))) {
       this.ctx.json({
         code: 400,
         message: '参数错误'

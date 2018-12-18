@@ -162,7 +162,7 @@ module.exports = class extends BaseRest {
         patent_name: name,
         abstract,
         right_status: rightStatus,
-        inventors: inventors.join(this.config('emptySpliter')),
+        inventors: inventors && inventors.join(this.config('emptySpliter')),
         type
       });
       browser.close();

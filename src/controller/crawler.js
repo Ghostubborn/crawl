@@ -48,7 +48,7 @@ module.exports = class extends BaseRest {
     const result = {
       code: 200,
       message: "",
-      userId: Number.parseInt(this.get('userId')),
+      userId: this.get('userId'),
       articles: articles.map(item => {
         if (item.status === 1) {
           return {

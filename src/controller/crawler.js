@@ -75,10 +75,10 @@ module.exports = class extends BaseRest {
             status: this.config('status')[item.status],
             abstract: item.abstract,
             rightStatus: item.right_status,
-            technicalValue: item.technical_value,
-            economicValue: item.economic_value,
-            legalValue: item.legal_value,
-            relatedPatents: item.related_patents.split(this.config('emptySpliter')),
+            // technicalValue: item.technical_value,
+            // economicValue: item.economic_value,
+            // legalValue: item.legal_value,
+            // relatedPatents: item.related_patents.split(this.config('emptySpliter')),
             inventors: item.inventors.split(this.config('emptySpliter')),
             type: item.type
           }

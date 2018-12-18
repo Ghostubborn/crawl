@@ -1,5 +1,5 @@
 module.exports = [{
-  interval: '1000s',
+  interval: '60s',
   immediate: true,
   handle: 'crontab/crawl'
 }]

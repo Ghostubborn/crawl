@@ -4,85 +4,168 @@ const puppeteer = require('puppeteer');
 module.exports = class extends BaseRest {
   async crawlAction() {
     const article = await this.model('article').where({ status: 0 }).order({ id: 'ASC' }).find();
-    if (think.isEmpty(article)) {
-      return;
-    }
+    if (!think.isEmpty(article)) {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`);
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`);
+      // 获取搜索结果第一篇的paperid
+      const frame = page.mainFrame();
+      const detailUrl = await frame.$eval('#bdxs_result_lists > div:nth-child(2) > div.sc_content > h3 > a',
+          e => e.href);
+      const paperId = detailUrl.match(/\%3A\%28([0-9a-f]+)\%29/)[1];
 
-    // 获取搜索结果第一篇的paperid
-    const frame = page.mainFrame();
-    const detailUrl = await frame.$eval('#bdxs_result_lists > div:nth-child(2) > div.sc_content > h3 > a',
-        e => e.href);
-    const paperId = detailUrl.match(/\%3A\%28([0-9a-f]+)\%29/)[1];
-
-    // 获取论文信息
-    const detailPage = await browser.newPage();
-    await detailPage.goto(`http://xueshu.baidu.com/usercenter/paper/show?paperid=${paperId}`, {
-      waitUntil: 'networkidle0'
-    });
-    const detailFrame = detailPage.mainFrame();
-    let authors, journal, journal_edition, abstract, keywords, cite;
-    const getInfo = async (selector, resultFunction, defaultValue, isMultiple) => {
-      let result;
-      try {
-        if (isMultiple) {
-          result = await detailFrame.$$eval(selector, resultFunction);
-        } else {
-          result = await detailFrame.$eval(selector, resultFunction);
+      // 获取论文信息
+      const detailPage = await browser.newPage();
+      await detailPage.goto(`http://xueshu.baidu.com/usercenter/paper/show?paperid=${paperId}`, {
+        waitUntil: 'networkidle0'
+      });
+      const detailFrame = detailPage.mainFrame();
+      let authors, journal, journal_edition, abstract, keywords, cite;
+      const getInfo = async (selector, resultFunction, defaultValue, isMultiple) => {
+        let result;
+        try {
+          if (isMultiple) {
+            result = await detailFrame.$$eval(selector, resultFunction);
+          } else {
+            result = await detailFrame.$eval(selector, resultFunction);
+          }
+        } catch (e) {
+          console.log(e.message);
+          result = defaultValue;
         }
-      } catch (e) {
-        console.log(e.message);
-        result = defaultValue;
+        return result;
       }
-      return result;
-    }
-    authors = await getInfo(
-      '#dtl_l > div.main-info > div.c_content > div.author_wr > p.author_text > span > a',
-      es => es.map(e => e.innerHTML),
-      [],
-      true
-    );
-    journal = await getInfo(
-      '#dtl_r > div:nth-child(1) > div > div > div.container_right > .journal_title',
-      e => e.innerHTML,
-      ''
-    )
-    journal_edition = await getInfo(
-      '#dtl_r > div:nth-child(1) > div > div > div.container_right > .journal_content',
-      e => e.innerHTML,
-      ''
-    )
-    abstract = await getInfo(
-      '#dtl_l > div.main-info > div.c_content > div.abstract_wr > p.abstract',
-      e => e.innerHTML,
-      ''
-    );
-    keywords = await getInfo(
-      '#dtl_l > div.main-info > div.c_content > div.kw_wr > p.kw_main > span > a',
-      es => es.map(e => e.innerHTML),
-      [],
-      true
-    )
-    cite = await getInfo(
-      '#cited_map_container > div.textTips > div.textTips_cite > span.number',
-      e => e.innerHTML,
-      ''
-    );
-    await this.model('article').where({
-      id: article.id
-    }).update({
-      authors: authors.join(this.config('emptySpliter')),
-      abstract,
-      keywords: keywords.join(this.config('emptySpliter')),
-      cite: /^\d+$/.test(cite) ? Number.parseInt(cite) : 0,
-      journal,
-      journal_edition,
-      status: 1
-    });
+      authors = await getInfo(
+        '#dtl_l > div.main-info > div.c_content > div.author_wr > p.author_text > span > a',
+        es => es.map(e => e.innerHTML),
+        [],
+        true
+      );
+      journal = await getInfo(
+        '#dtl_r > div:nth-child(1) > div > div > div.container_right > .journal_title',
+        e => e.innerHTML,
+        ''
+      )
+      journal_edition = await getInfo(
+        '#dtl_r > div:nth-child(1) > div > div > div.container_right > .journal_content',
+        e => e.innerHTML,
+        ''
+      )
+      abstract = await getInfo(
+        '#dtl_l > div.main-info > div.c_content > div.abstract_wr > p.abstract',
+        e => e.innerHTML,
+        ''
+      );
+      keywords = await getInfo(
+        '#dtl_l > div.main-info > div.c_content > div.kw_wr > p.kw_main > span > a',
+        es => es.map(e => e.innerHTML),
+        [],
+        true
+      )
+      cite = await getInfo(
+        '#cited_map_container > div.textTips > div.textTips_cite > span.number',
+        e => e.innerHTML,
+        ''
+      );
+      await this.model('article').where({
+        id: article.id
+      }).update({
+        authors: authors.join(this.config('emptySpliter')),
+        abstract,
+        keywords: keywords.join(this.config('emptySpliter')),
+        cite: /^\d+$/.test(cite) ? Number.parseInt(cite) : 0,
+        journal,
+        journal_edition,
+        status: 1
+      });
 
-    browser.close();
+      browser.close();
+    }
+
+    const patent = await this.model('patent').where({ status: 0 }).order({ id: 'ASC' }).find();
+    if (!think.isEmpty(patent)) {
+      const browser = await puppeteer.launch();
+      const detailPage = await browser.newPage();
+      let inputPatentCode = patent.patent_code;
+
+      // 去掉会被屏蔽
+      detailPage.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36');
+
+      await detailPage.goto(`https://www.patexplorer.com/patent/view.html?patid=${inputPatentCode}`, {
+        waitUntil: 'load'
+      });
+
+      const detailFrame = detailPage.mainFrame();
+      let code, name, status, abstract, rightStatus, inventors, type, technical, economic, legal, related;
+      const getInfo = async (selector, resultFunction, defaultValue, isMultiple) => {
+        let result;
+        try {
+          if (isMultiple) {
+            result = await detailFrame.$$eval(selector, resultFunction);
+          } else {
+            result = await detailFrame.$eval(selector, resultFunction);
+          }
+        } catch (e) {
+          console.log(e.message);
+          result = defaultValue;
+        }
+        return result;
+      }
+
+      code = await getInfo(
+        '#Js_patent_view_container .Js_patent_view_item:first-child > .g-info-l > .g-info-l-in .ui-switchable-content > div:first-child > div > ul.abst-info > li:nth-child(1)',
+        e => e.childNodes[1].data.trim(),
+        ''
+      );
+      if (code !== inputPatentCode) {
+        status = 2;
+      } else {
+        status = 1;
+        name = await getInfo(
+          '#Js_patentview_main > div.detail_fix > div.u-detail-info-top.fn-clear.u-detail-info-top-bg > span > span',
+          e => e.innerHTML,
+          ''
+        );
+        abstract = await getInfo(
+          '#Js_patent_view_container .Js_patent_view_item:first-child > .g-info-l > .g-info-l-in .ui-switchable-content > div:first-child > div > div.abstract.contenttext',
+          e => e.innerHTML.trim(),
+          ''
+        );
+        rightStatus = await getInfo(
+          '#Js_patentview_main > div.detail_fix > div.u-detail-info-top.fn-clear.u-detail-info-top-bg > div.law-status > p',
+          e => e.innerText,
+          []
+        );
+        inventors = await getInfo(
+          '#Js_patent_view_container .Js_patent_view_item:first-child > .g-info-l > .g-info-l-in .ui-switchable-content > div:first-child > div > ul > li:nth-child(6) > a',
+          es => es.map(item => item.innerText),
+          [],
+          true
+        );
+        type = await getInfo(
+          '#Js_patentview_main > div.detail_fix > div.u-detail-info-top.fn-clear.u-detail-info-top-bg > span.title',
+          e => e.childNodes[0].data.trim().match(/^\[(.*)\]/)[1],
+          ''
+        );
+        await Promise.all([
+          detailPage.waitForNavigation({ waitUntil: 'networkidle2' }),
+          detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a:nth-child(5)'),
+        ]);
+        await detailPage.screenshot({ path: 'test.png' });
+      }
+
+      await this.model('patent').where({
+        id: patent.id
+      }).update({
+        status,
+        patent_name: name,
+        abstract,
+        right_status: rightStatus,
+        inventors: inventors.join(this.config('emptySpliter')),
+        type
+      });
+      browser.close();
+    }
   }
 };

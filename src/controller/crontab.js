@@ -119,7 +119,7 @@ module.exports = class extends BaseRest {
         ''
       );
       if (code !== inputPatentCode) {
-        status = 2;
+        status = 0;
       } else {
         status = 1;
         name = await getInfo(
@@ -138,7 +138,7 @@ module.exports = class extends BaseRest {
           []
         );
         inventors = await getInfo(
-          '#Js_patent_view_container .Js_patent_view_item:first-child > .g-info-l > .g-info-l-in .ui-switchable-content > div:first-child > div > ul > li:nth-child(6) > a',
+          '#Js_patent_view_container .Js_patent_view_item:first-child > .g-info-l > .g-info-l-in .ui-switchable-content > div:first-child > div > ul.abst-info > li:nth-child(6) > a',
           es => es.map(item => item.innerText),
           [],
           true
@@ -148,11 +148,50 @@ module.exports = class extends BaseRest {
           e => e.childNodes[0].data.trim().match(/^\[(.*)\]/)[1],
           ''
         );
-        await Promise.all([
-          detailPage.waitForNavigation({ waitUntil: 'networkidle2' }),
-          detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a:nth-child(5)'),
-        ]);
-        await detailPage.screenshot({ path: 'test.png' });
+        try {
+          // 点击专利价值度
+          await Promise.all([
+            detailPage.waitForNavigation({ waitUntil: 'networkidle2' }),
+            detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a[data-type="worth"]')
+          ]);
+          // 输入密码
+          await detailFrame.type(
+            'body > div.ui-dialog > div.ui-dialog-content > div > div.patLogin > div.accountLogin > form > div:nth-child(1) > input[type="text"]',
+            '18317857539'
+          );
+          await detailFrame.type(
+            'body > div.ui-dialog > div.ui-dialog-content > div > div.patLogin > div.accountLogin > form > div:nth-child(2) > input[type="password"]',
+            'W_s_Z_547286408'
+          );
+          await Promise.all([
+            detailPage.waitForNavigation({ waitUntil: 'networkidle2' }),
+            detailFrame.click('body > div.ui-dialog > div.ui-dialog-content > div > div.patLogin > div.accountLogin > form > div:nth-child(3) > div.JS_accountLoginBtn')
+          ]);
+
+          // 点击专利价值度
+          detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a[data-type="worth"]');
+          await detailPage.waitForSelector(
+            '#Js_patent_view_container > div > div[data-role="worth"] > div.ui-switchable-content > div > div > div.m-worth-top > div.u-worth-des > div > p.count > span'
+          );
+          await detailPage.waitFor(300);
+          technical = await getInfo('#span1 > div > div > span', e => e.innerText, '');
+          economic = await getInfo('#span2 > div > div > span', e => e.innerText, '');
+          legal = await getInfo('#span3 > div > div > span', e => e.innerText, '');
+
+          // 跳转到相关专利
+          detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a[data-type="relative"]');
+          await detailPage.waitForSelector('#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table');
+
+          related = await getInfo(
+            '#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table > tbody > tr > td:nth-child(2) > a',
+            es => es.map(e => e.innerText),
+            [],
+            true
+          );
+
+        } catch (e) {
+          status = 0;
+        }
       }
 
       await this.model('patent').where({
@@ -163,7 +202,11 @@ module.exports = class extends BaseRest {
         abstract,
         right_status: rightStatus,
         inventors: inventors && inventors.join(this.config('emptySpliter')),
-        type
+        type,
+        technical_value: technical,
+        economic_value: economic,
+        legal_value: legal,
+        related_patents: related.join(this.config('emptySpliter'))
       });
       browser.close();
     }

@@ -78,7 +78,7 @@ module.exports = class extends BaseRest {
             technicalValue: item.technical_value,
             economicValue: item.economic_value,
             legalValue: item.legal_value,
-            relatedPatents: item.related_patents.split(this.config('emptySpliter')),
+            relatedPatents: JSON.parse(item.related_patents),
             inventors: item.inventors.split(this.config('emptySpliter')),
             type: item.type
           }

@@ -183,8 +183,16 @@ module.exports = class extends BaseRest {
           await detailPage.waitForSelector('#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table');
 
           related = await getInfo(
-            '#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table > tbody > tr > td:nth-child(2) > a',
-            es => es.map(e => e.innerText),
+            '#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table > tbody > tr + tr',
+            es => es.map(e => {
+              let result = {
+                id: e.querySelector('td:nth-child(2) > a').innerText,
+                name: e.querySelector('td:nth-child(3) > a').innerText,
+                applicant: []
+              };
+              e.querySelectorAll('td:nth-child(4) > a').forEach(node => result.applicant.push(node.innerText));
+              return result;
+            }),
             [],
             true
           );
@@ -206,7 +214,7 @@ module.exports = class extends BaseRest {
         technical_value: technical,
         economic_value: economic,
         legal_value: legal,
-        related_patents: related.join(this.config('emptySpliter'))
+        related_patents: JSON.stringify(related)
       });
       browser.close();
     }

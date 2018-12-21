@@ -3,13 +3,13 @@
 ## request: application/json
 字段名称 | 数据类型 | 是否必须 | 字段说明
 | -- |:--:|:--:| -- |
-userId | int | Y | 用户ID
+userId | string | Y | 用户ID
 articles | array of string | Y | 论文名称列表
 patents | array of string | Y | 专利号列表
 
 ``` json
 {
-  "userId": 10001,
+  "userId": "10001",
   "articles": [
     "转甜菜碱醛脱氢酶基因豆瓣菜的耐盐性",
     "黄瓜SRAP遗传连锁图的构建及始花节位的基因定位",
@@ -49,7 +49,7 @@ userId | int | Y | 用户ID
 | -- |:--:| -- |
 code | string | 状态码。200: 成功，400: 参数错误。
 message | string | 错误信息
-userId | int | 用户ID
+userId | string | 用户ID
 articles | array of `article` object | 论文名称列表
 patents | array of `patent` object | 专利名称列表
 article.name | string | 论文名称
@@ -76,7 +76,7 @@ patent.type | string | 专利类型
 {
   "code": 200,
   "message": "",
-  "userId": 10001,
+  "userId": "10001",
   "articles": [
     {
       "name": "article1",
@@ -95,10 +95,10 @@ patent.type | string | 专利类型
       "status": "success",
       "abstract": "摘要摘要摘要摘要摘要摘要摘要",
       "rightStatus": "有权-审定授权",
-      "technicalValue": "36.0",
-      "economicValue": "8.0",
-      "legalValue": "3.0",
-      "relatedPatents": ["专利一", "专利二", "专利三", "专利四", "专利五", "专利六", "专利七", "专利八", "专利九", "专利十"],
+      "technicalValue": "36",
+      "economicValue": "8",
+      "legalValue": "3",
+      "relatedPatents": ["CN201710376390.6","CN201510657188.1","CN201510158995.9","CN201510941234.0","CN201510303118.6","CN201310341175.4","CN201710573117.2","CN201180020779.8","CN201080040790.6","CN201510055092.8"],
       "inventors": ["王奎洋", "唐金花", "刘成晔"],
       "type": "中国发明，中国发明授权"
     }

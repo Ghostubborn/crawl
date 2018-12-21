@@ -75,7 +75,7 @@ module.exports = class extends BaseRest {
         abstract,
         keywords: keywords.join(this.config('emptySpliter')),
         cite: /^\d+$/.test(cite) ? Number.parseInt(cite) : 0,
-        journal,
+        journal: journal.toUpperCase().replace('《','').replace('》',''),
         journal_edition,
         status: 1
       });

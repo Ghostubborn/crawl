@@ -119,7 +119,7 @@ module.exports = class extends BaseRest {
         ''
       );
       if (code !== inputPatentCode) {
-        status = 0;
+        status = 2;
       } else {
         status = 1;
         name = await getInfo(

@@ -182,7 +182,7 @@ module.exports = class extends BaseRest {
             await detailPage.waitForSelector(
               '#Js_patent_view_container > div > div[data-role="worth"] > div.ui-switchable-content > div > div > div.m-worth-top > div.u-worth-des > div > p.count > span'
             );
-            await detailPage.waitFor(300);
+            await detailPage.waitFor(1000);
             technical = await getInfo('#span1 > div > div > span', e => e.innerText, '');
             economic = await getInfo('#span2 > div > div > span', e => e.innerText, '');
             legal = await getInfo('#span3 > div > div > span', e => e.innerText, '');

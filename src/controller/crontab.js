@@ -265,7 +265,7 @@ module.exports = class extends BaseRest {
           } else {
             status = 1
             name = await getInfo(
-              '#Js_patentview_main > div.detail_fix > div.u-detail-info-top.fn-clear.u-detail-info-top-bg > span > span',
+              '#patent-title > span',
               e => e.innerHTML,
               ''
             );

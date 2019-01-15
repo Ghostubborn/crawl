@@ -52,13 +52,13 @@ module.exports = class extends BaseRest {
       articles: articles.map(item => {
         if (item.status === 1) {
           return {
-            name: item.article_name,
+            name: item.article_name || '',
             status: this.config('status')[item.status],
             cite: item.cite,
             keywords: item.keywords.split(this.config('emptySpliter')),
-            abstract: item.abstract,
+            abstract: item.abstract || '',
             authors: item.authors.split(this.config('emptySpliter')),
-            journal: item.journal
+            journal: item.journal || ''
           }
         } else {
           return {
@@ -71,16 +71,16 @@ module.exports = class extends BaseRest {
         if (item.status === 1) {
           return {
             id: item.patent_code,
-            name: item.patent_name,
+            name: item.patent_name || '',
             status: this.config('status')[item.status],
-            abstract: item.abstract,
-            rightStatus: item.right_status,
-            technicalValue: item.technical_value,
-            economicValue: item.economic_value,
-            legalValue: item.legal_value,
+            abstract: item.abstract || '',
+            rightStatus: item.right_status || '',
+            technicalValue: item.technical_value || '',
+            economicValue: item.economic_value || '',
+            legalValue: item.legal_value || '',
             relatedPatents: JSON.parse(item.related_patents),
             inventors: item.inventors.split(this.config('emptySpliter')),
-            type: item.type
+            type: item.type || ''
           }
         } else {
           return {

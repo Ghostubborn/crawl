@@ -104,6 +104,7 @@ module.exports = class extends BaseRest {
         await detailPage.goto(`https://www.patexplorer.com/patent/view.html?patid=${inputPatentCode}`, {
           waitUntil: 'load'
         });
+        await detailPage.waitFor(5000);
 
         const detailFrame = detailPage.mainFrame();
         let code, name, status, abstract, rightStatus, inventors, type, technical, economic, legal, related;
@@ -127,6 +128,7 @@ module.exports = class extends BaseRest {
           e => e.childNodes[1].data.trim(),
           ''
         );
+
         if (code !== inputPatentCode) {
           throw new Error('code 不匹配');
         } else {
@@ -162,6 +164,9 @@ module.exports = class extends BaseRest {
             detailPage.waitForNavigation({ waitUntil: 'networkidle2' }),
             detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a[data-type="worth"]')
           ]);
+
+          await detailPage.waitFor(5000);
+
           // 输入密码
           await detailFrame.type(
             'body > div.ui-dialog > div.ui-dialog-content > div > div.patLogin > div.accountLogin > form > div:nth-child(1) > input[type="text"]',
@@ -181,7 +186,8 @@ module.exports = class extends BaseRest {
           await detailPage.waitForSelector(
             '#Js_patent_view_container > div > div[data-role="worth"] > div.ui-switchable-content > div > div > div.m-worth-top > div.u-worth-des > div > p.count > span'
           );
-          await detailPage.waitFor(1000);
+          await detailPage.waitFor(5000);
+
           technical = await getInfo('#span1 > div > div > span', e => e.innerText, '');
           economic = await getInfo('#span2 > div > div > span', e => e.innerText, '');
           legal = await getInfo('#span3 > div > div > span', e => e.innerText, '');
@@ -189,6 +195,8 @@ module.exports = class extends BaseRest {
           // 跳转到相关专利
           detailFrame.click('#Js_patentview_main > div.detail_fix > div.tab_container > div > a[data-type="relative"]');
           await detailPage.waitForSelector('#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table');
+
+          await detailPage.waitFor(5000);
 
           related = await getInfo(
             '#Js_patent_view_container > div > div[data-role="relative"] > div.ui-switchable-content > div > table > tbody > tr + tr',

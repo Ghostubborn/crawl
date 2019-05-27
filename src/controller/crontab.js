@@ -8,13 +8,15 @@ module.exports = class extends BaseRest {
       const browser = await puppeteer.launch();
       try {
         const page = await browser.newPage();
-        await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`);
+        await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`, {
+          waitUntil: 'networkidle0'
+        });
 
         // 获取搜索结果第一篇的paperid
         const frame = page.mainFrame();
-        const detailUrl = await frame.$eval('#bdxs_result_lists > div:nth-child(2) > div.sc_content > h3 > a',
+        const detailUrl = await frame.$eval('#bdxs_result_lists > #toolbar + div > div.sc_content > h3 > a',
             e => e.href);
-        const paperId = detailUrl.match(/\%3A\%28([0-9a-f]+)\%29/)[1];
+        const paperId = detailUrl.match(/\%3A\%28(\w+)\%29/)[1];
 
         // 获取论文信息
         const detailPage = await browser.newPage();

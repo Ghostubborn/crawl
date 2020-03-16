@@ -5,7 +5,7 @@ module.exports = class extends BaseRest {
   async crawlAction() {
     const article = await this.model('article').where({ status: 0 }).order({ id: 'ASC' }).find();
     if (!think.isEmpty(article)) {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
       try {
         const page = await browser.newPage();
         await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`, {
@@ -94,7 +94,7 @@ module.exports = class extends BaseRest {
 
     const patent = await this.model('patent').where({ status: 0 }).order({ id: 'ASC' }).find();
     if (!think.isEmpty(patent)) {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
       let cnSuccess = true;
       try {
         const detailPage = await browser.newPage();

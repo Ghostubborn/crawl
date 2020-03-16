@@ -8,7 +8,7 @@ module.exports = class extends BaseRest {
       const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
       try {
         const page = await browser.newPage();
-        await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&sc_hit=1`, {
+        await page.goto(`https://xueshu.baidu.com/s?wd=${article.article_name}&tn=SE_baiduxueshu_c1gjeupa&sc_hit=1`, {
           waitUntil: 'networkidle0'
         });
 

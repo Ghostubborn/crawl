@@ -16,7 +16,7 @@ module.exports = class extends BaseRest {
         const frame = page.mainFrame();
         const detailUrl = await frame.$eval('#bdxs_result_lists > #toolbar + div > div.sc_content > h3 > a',
             e => e.href);
-        const paperId = detailUrl.match(/\%3A\%28(\w+)\%29/)[1];
+        const paperId = detailUrl.match(/paperid=(\w+)/)[1];
 
         // 获取论文信息
         const detailPage = await browser.newPage();
